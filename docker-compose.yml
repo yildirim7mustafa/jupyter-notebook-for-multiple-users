@@ -1,0 +1,32 @@
+version: "3.9"
+services:
+    jupyterhub: # Configuration for Hub
+        build: 
+            context: ./jupyterhub/  # path to the Dockerfile
+            args:
+                JUPYTERHUB_VERSION: 2.3.1
+        image: mc_jupyterhub_img:v1    # image name
+        container_name: jh_container    # container name
+        restart: always
+        tty: true
+        stdin_open: true
+        volumes:
+            - "/var/run/docker.sock:/var/run/docker.sock:rw"
+        ports:
+            - 8000:8000
+            - 8081:8081
+        networks:
+            - ${DOCKER_NETWORK_NAME}
+        environment:
+            DOCKER_JUPYTER_IMAGE: jupyter/scipy-notebook:lab-3.4.3 
+            DOCKER_NETWORK_NAME: ${DOCKER_NETWORK_NAME}
+            
+        env_file:
+            - .env
+        command: >
+            jupyterhub --debug -f /etc/jupyterhub/jupyterhub_config.py
+
+
+networks:
+    jupyterhub-network:
+        name: ${DOCKER_NETWORK_NAME}
